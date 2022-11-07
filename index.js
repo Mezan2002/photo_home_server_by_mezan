@@ -19,14 +19,29 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-const photosCollection = client.db("photoHome").collection("photosData");
+const run = async () => {
+  try {
+    const photosCollection = client.db("photoHome").collection("photosData");
+    // get all photos API start
+    app.get("/photos", async (req, res) => {
+      const query = {};
+      const cursor = photosCollection.find(query);
+      const photos = await cursor.toArray();
+      res.send(photos);
+    });
+    // get all photos API end
 
-app.get("/photos", async (req, res) => {
-  const query = {};
-  const cursor = photosCollection.find(query);
-  const photos = await cursor.toArray();
-  res.send(photos);
-});
+    // add new photos API start (CRUD => (C))
+    app.post("/photos", async (req, res) => {
+      const newPhoto = req.body;
+      const result = await photosCollection.insertOne(newPhoto);
+      res.send(result);
+    });
+    // add new photos API end (CRUD => (C))
+  } finally {
+  }
+};
+run().catch((error) => console.error(error));
 
 // mongo DB connection end
 
